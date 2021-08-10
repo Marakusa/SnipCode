@@ -5,8 +5,55 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SnipCode"
         mc:Ignorable="d"
-        Title="SnipCode" Height="600" Width="1000" WindowStartupLocation="CenterScreen" MinWidth="600" MinHeight="450">
+        Title="SnipCode" Height="373" Width="757" WindowStartupLocation="CenterScreen" MinWidth="757" MinHeight="450" Icon="pack://siteoforigin:,,,/Interface/icon.png">
+
     <Grid x:Name="Controls" Background="#FF252525">
+        <!--<ScrollViewer x:Name="scrollview" Margin="75,0,0,0" Background="#FFECECEC">
+        </ScrollViewer>-->
+        <StackPanel x:Name="panel" Margin="75,0,0,0">
+            <Canvas x:Name="snippet" Height="100" Width="600" Background="#FFE0E0E0" Margin="30,30,30,0" VerticalAlignment="Top">
+                <Image Height="80" Canvas.Left="10" Canvas.Top="10" Width="80" Source="pack://siteoforigin:,,,/Interface/lang-icons/js.png"/>
+                <Label x:Name="title" Content="Example" Canvas.Left="95" Canvas.Top="10" Width="495" FontSize="16"/>
+                <Label x:Name="description" Content="This is an example snippet." Canvas.Left="95" Canvas.Top="41" Width="495" Height="49"/>
+            </Canvas>
+        </StackPanel>
+        <Rectangle Fill="White" HorizontalAlignment="Left" Stroke="White" Width="75" RenderTransformOrigin="0.5,0.5" StrokeThickness="0">
+            <Rectangle.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform/>
+                    <SkewTransform/>
+                    <RotateTransform/>
+                    <TranslateTransform X="-1"/>
+                </TransformGroup>
+            </Rectangle.RenderTransform>
+        </Rectangle>
+        <Rectangle x:Name="home" HorizontalAlignment="Left" Height="75" Margin="-1,80,0,0" VerticalAlignment="Top" Width="75" Panel.ZIndex="2" MouseEnter="home_MouseEnter" MouseLeave="home_MouseLeave" MouseDown="home_MouseDown" MouseUp="home_MouseUp">
+            <Rectangle.Fill>
+                <ImageBrush ImageSource="pack://siteoforigin:,,,/Interface/home.png" Stretch="Uniform"/>
+            </Rectangle.Fill>
+        </Rectangle>
+        <Rectangle HorizontalAlignment="Left" Height="65" VerticalAlignment="Top" Width="75" Margin="-1,7,0,0">
+            <Rectangle.Fill>
+                <ImageBrush ImageSource="pack://siteoforigin:,,,/Interface/icon.png" Stretch="Uniform"/>
+            </Rectangle.Fill>
+        </Rectangle>
+        <Rectangle x:Name="add" HorizontalAlignment="Left" Height="75" Margin="-1,155,0,0" VerticalAlignment="Top" Width="75" Panel.ZIndex="2" MouseEnter="add_MouseEnter" MouseLeave="add_MouseLeave" MouseDown="add_MouseDown" MouseUp="add_MouseUp">
+            <Rectangle.Fill>
+                <ImageBrush ImageSource="pack://siteoforigin:,,,/Interface/add.png" Stretch="Uniform"/>
+            </Rectangle.Fill>
+        </Rectangle>
+        <Rectangle x:Name="star" HorizontalAlignment="Left" Height="75" Margin="-1,230,0,0" VerticalAlignment="Top" Width="75" Panel.ZIndex="2" MouseEnter="star_MouseEnter" MouseLeave="star_MouseLeave" MouseDown="star_MouseDown" MouseUp="star_MouseUp">
+            <Rectangle.Fill>
+                <ImageBrush ImageSource="pack://siteoforigin:,,,/Interface/star.png" Stretch="Uniform"/>
+            </Rectangle.Fill>
+        </Rectangle>
+        <Rectangle x:Name="settings" HorizontalAlignment="Left" Height="75" Margin="-1,305,0,0" VerticalAlignment="Top" Width="75" Panel.ZIndex="2" MouseEnter="settings_MouseEnter" MouseLeave="settings_MouseLeave" MouseDown="settings_MouseDown" MouseUp="settings_MouseUp">
+            <Rectangle.Fill>
+                <ImageBrush ImageSource="pack://siteoforigin:,,,/Interface/settings.png" Stretch="Uniform"/>
+            </Rectangle.Fill>
+        </Rectangle>
+        <Rectangle HorizontalAlignment="Left" Margin="74,0,0,0" Width="3" Fill="#FFFF006E"/>
+
         <!--<Grid.ColumnDefinitions>
             <ColumnDefinition Width="201*"/>
             <ColumnDefinition Width="391*"/>
