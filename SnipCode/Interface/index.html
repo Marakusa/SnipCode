@@ -1,11 +1,39 @@
 <!DOCTYPE html>
 
 <html>
-    <head>
+    <head>    
+        <meta charset="utf-8"/>
+
         <link rel="stylesheet" href="style.css">
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+
+        <link rel=stylesheet href="lib/codemirror.css">
+        <link rel=stylesheet href="doc/docs.css">
+        <script src="lib/codemirror.js"></script>
+        <script src="mode/xml/xml.js"></script>
+        <script src="mode/javascript/javascript.js"></script>
+        <script src="mode/css/css.js"></script>
+        <script src="mode/htmlmixed/htmlmixed.js"></script>
+        <script src="addon/edit/matchbrackets.js"></script>
+
+        <script src="doc/activebookmark.js"></script>
+        
+        <style>
+            .CodeMirror {
+                height: auto;
+                width: 100%;
+                border-radius: 5px;
+                background-color: #ececec;
+                transition: 0.1s;
+                margin-bottom: 15px;
+            }
+            .CodeMirror-scroll { max-height: 200px; }
+            .CodeMirror pre { padding-left: 7px; line-height: 1.25; }
+            .banner { background: #ffc; padding: 6px; border-bottom: 2px solid silver; text-align: center }
+        </style>
+  
     </head>
     <body>
         <div class="top-bar">
@@ -40,6 +68,29 @@
             <div id="snippets">
                 
             </div>
+        </div>
+        <div class="content" id="tabcontent1">
+            <label for="title">Title</label>
+            <input id="title" class="textarea-input" type="text" value="Example" />
+            <label for="description">Description</label>
+            <input id="description" class="textarea-input" type="text" value="This is an example code snippet." />
+            <label for="codetext">Code</label>
+            
+            
+            
+            
+            <form style="position: relative; width: calc(100% + 10px);">
+                <textarea id="codetext">print("Hello world!");</textarea>
+            </form>
+              <script>
+                var editor = CodeMirror.fromTextArea(document.getElementById("codetext"), {
+                  lineNumbers: true,
+                  mode: "text/javascript",
+                  matchBrackets: true
+                });
+              </script>
+            
+            
         </div>
 
         <script>

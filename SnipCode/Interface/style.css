@@ -165,3 +165,25 @@ body {
     transition: 0.1s;
     cursor: pointer;
 }
+
+.textarea-input {
+    resize: none;
+}
+
+input[type="text"] {
+    width: 100%;
+    padding: 5px;
+    border: none;
+    border-radius: 5px;
+    background-color: #ececec;
+    transition: 0.1s;
+    margin-bottom: 15px;
+}
+input[type="text"]:hover {
+    background-color: #dddddd;
+    transition: 0.1s;
+}
+input[type="text"]:active {
+    background-color: #c0c0c0;
+    transition: 0.1s;
+}
