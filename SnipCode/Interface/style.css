@@ -44,6 +44,29 @@ body {
     transition: 0.1s;
 }
 
+.window-control {
+    float: right;
+    top: 0;
+    right: 0;
+    display: block;
+}
+.window-control-button {
+    background-color: #00000000;
+    float: right;
+    width: 40px;
+    padding: 10px;
+    text-align: center;
+    transition: 0.1s;
+}
+.window-control-button:hover {
+    background-color: #ff006f;
+    transition: 0.1s;
+}
+.window-control-button:active {
+    background-color: #a40f4f;
+    transition: 0.1s;
+}
+
 .side-bar {
     background-color: rgb(241, 241, 241);
     height: 100%;
