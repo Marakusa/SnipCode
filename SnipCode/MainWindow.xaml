@@ -1,0 +1,39 @@
+﻿<Window x:Class="SnipCode.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SnipCode"
+        mc:Ignorable="d"
+        Title="SnipCode" Height="600" Width="1000" WindowStartupLocation="CenterScreen" MinWidth="600" MinHeight="450">
+    <Grid x:Name="Controls" Background="#FF252525">
+        <!--<Grid.ColumnDefinitions>
+            <ColumnDefinition Width="201*"/>
+            <ColumnDefinition Width="391*"/>
+        </Grid.ColumnDefinitions>
+        <DockPanel LastChildFill="False" Background="#FF616161" RenderTransformOrigin="0.5,0.5" Margin="0,0,1,0"/>
+        <Button Content="Home" Margin="10,10,10,0" VerticalAlignment="Top" Height="31" Click="HomeButton_Click"/>
+        <Button Content="Add" Margin="10,46,10,0" VerticalAlignment="Top" Height="31" Click="AddButton_Click"/>
+        <Button Content="Favourites" Margin="10,82,10,0" VerticalAlignment="Top" Height="31" Click="FavouritesButton_Click"/>
+        <Button Content="Settings" Margin="10,118,10,0" VerticalAlignment="Top" Height="31" Click="SettingsButton_Click"/>
+
+        <ScrollViewer x:Name="snippetsGrid" Grid.Column="1" Margin="0">
+            <Grid x:Name="MyGrid" HorizontalAlignment="Left" Height="535" VerticalAlignment="Top" Width="492">
+                <Grid.Resources>
+                    <Style TargetType="{x:Type Panel}">
+                        <Setter Property="Margin" Value="0,0,0,6" />
+                    </Style>
+                </Grid.Resources>
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Rectangle Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="90" Margin="10,10,0,0" Stroke="Black" VerticalAlignment="Top" Width="472"/>
+                <Label Content="Example" HorizontalAlignment="Left" Margin="100,21,0,0" VerticalAlignment="Top" Height="27" Width="254"/>
+            </Grid>
+        </ScrollViewer>-->
+    </Grid>
+</Window>

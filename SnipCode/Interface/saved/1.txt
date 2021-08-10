@@ -1,0 +1,6 @@
+[File]
+js
+Example
+This is an example code snippet.
+[Code]
+print("Hello world!");
