@@ -23,26 +23,49 @@ namespace SnipCode
     /// </summary>
     public partial class MainWindow : Window
     {
-        private int selectedTab = 0;
+        private List<Snippet> snippets = new List<Snippet>();
 
-        Canvas newCanvas;
+        private int selectedTab = 0;
+        private string snippetTemplate;
+
+        private SnippetButtonHandler buttonHandler;
 
         public MainWindow()
         {
             InitializeComponent();
-            
-            string saved = XamlWriter.Save(snippet);
-            StringReader sReader = new StringReader(saved);
-            XmlReader xReader = XmlReader.Create(sReader);
-            newCanvas = (Canvas)XamlReader.Load(xReader);
 
+            buttonHandler = new SnippetButtonHandler();
+            buttonHandler.ButtonPressed += ButtonHandler_ButtonPressed;
+
+            snippetTemplate = XamlWriter.Save(snippet);
+
+            snippet.Visibility = Visibility.Collapsed;
+
+            LoadSnippets();
             ChangeTab(0);
         }
 
-        public void AddPanel(string title, string desc)
+        private void ButtonHandler_ButtonPressed(object sender, SnippetButtonPressedEventArgs e)
         {
-            newCanvas.Children[1].
-            panel.Children.Add(newCanvas);
+            SnippetPressed(e.id);
+        }
+
+        public void AddPanel(string title, string description, int id)
+        {
+            StringReader sReader = new StringReader(snippetTemplate);
+            XmlReader xReader = XmlReader.Create(sReader);
+            Canvas template = (Canvas)XamlReader.Load(xReader);
+
+            var titleLabel = (Label)template.Children[1];
+            var descLabel = (Label)template.Children[2];
+
+            titleLabel.Content = title;
+            descLabel.Content = description;
+
+            panel.Children.Add(template);
+
+            snippets[id].Id = id;
+            snippets[id].SnippetButton = template;
         }
 
         public void ChangeTab(int tab)
@@ -73,7 +96,19 @@ namespace SnipCode
 
         public void LoadSnippets()
         {
+            AddSnippet("Example", "This is an example snippet.", "js", "print(\"Hello world!\");");
+            AddSnippet("Example 2", "This is an another example snippet.", "cs", "Console.WriteLine(\"Hello world!\");");
+        }
+        private void AddSnippet(string title, string description, string lang, string code)
+        {
+            Snippet snippet = new Snippet(title, description, lang, code, buttonHandler);
+            snippets.Add(snippet);
+            AddPanel(title, description, snippets.Count - 1);
+        }
 
+        private void SnippetPressed(int id)
+        {
+            MessageBox.Show(snippets[id].code);
         }
 
         private void HomeButton_Click(object sender, RoutedEventArgs e)
@@ -92,6 +127,11 @@ namespace SnipCode
         {
         }
 
+        //========================================
+        // UI appearance
+        //========================================
+
+        // Home tab button highlight coloring
         private void home_MouseEnter(object sender, MouseEventArgs e)
         {
             SetHomeFill("pack://siteoforigin:,,,/Interface/home_fill.png");
@@ -120,6 +160,7 @@ namespace SnipCode
                 home.Fill = new ImageBrush(new BitmapImage(new Uri(BaseUriHelper.GetBaseUri(this), path)));
         }
 
+        // Add snippet tab button highlight coloring
         private void add_MouseEnter(object sender, MouseEventArgs e)
         {
             SetAddFill("pack://siteoforigin:,,,/Interface/add_fill.png");
@@ -148,6 +189,7 @@ namespace SnipCode
                 add.Fill = new ImageBrush(new BitmapImage(new Uri(BaseUriHelper.GetBaseUri(this), path)));
         }
 
+        // Favourites tab button highlight coloring
         private void star_MouseEnter(object sender, MouseEventArgs e)
         {
             SetStarFill("pack://siteoforigin:,,,/Interface/star_fill.png");
@@ -176,6 +218,7 @@ namespace SnipCode
                 star.Fill = new ImageBrush(new BitmapImage(new Uri(BaseUriHelper.GetBaseUri(this), path)));
         }
 
+        // Settings tab button highlight coloring
         private void settings_MouseEnter(object sender, MouseEventArgs e)
         {
             SetSettingsFill("pack://siteoforigin:,,,/Interface/settings_fill.png");
