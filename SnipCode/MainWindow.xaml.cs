@@ -25,14 +25,22 @@ namespace SnipCode
     {
         private List<Snippet> snippets = new List<Snippet>();
 
+        private int editingSnippet = -1;
         private int selectedTab = 0;
         private string snippetTemplate;
 
         private SnippetButtonHandler buttonHandler;
 
+        private string savesPath = @"C:\";
+
         public MainWindow()
         {
             InitializeComponent();
+
+            savesPath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "SnipCode/Saves");
+
+            if (!Directory.Exists(savesPath))
+                Directory.CreateDirectory(savesPath);
 
             buttonHandler = new SnippetButtonHandler();
             buttonHandler.ButtonPressed += ButtonHandler_ButtonPressed;
@@ -40,6 +48,8 @@ namespace SnipCode
             snippetTemplate = XamlWriter.Save(snippet);
 
             snippet.Visibility = Visibility.Collapsed;
+
+            codeSnippetInput.Visibility = Visibility.Collapsed;
 
             LoadSnippets();
             ChangeTab(0);
@@ -50,65 +60,125 @@ namespace SnipCode
             SnippetPressed(e.id);
         }
 
-        public void AddPanel(string title, string description, int id)
+        public void AddPanel(string title, string description, string lang, int id)
         {
-            StringReader sReader = new StringReader(snippetTemplate);
-            XmlReader xReader = XmlReader.Create(sReader);
-            Canvas template = (Canvas)XamlReader.Load(xReader);
+            try
+            {
+                StringReader sReader = new StringReader(snippetTemplate);
+                XmlReader xReader = XmlReader.Create(sReader);
+                Canvas template = (Canvas)XamlReader.Load(xReader);
 
-            var titleLabel = (Label)template.Children[1];
-            var descLabel = (Label)template.Children[2];
+                var icon = (Image)template.Children[0];
+                var titleLabel = (Label)template.Children[1];
+                var descLabel = (Label)template.Children[2];
 
-            titleLabel.Content = title;
-            descLabel.Content = description;
+                BitmapImage logo = new BitmapImage();
+                logo.BeginInit();
+                logo.UriSource = new Uri("pack://siteoforigin:,,,/Interface/lang-icons/" + lang + ".png");
+                logo.EndInit();
+                icon.Source = logo;
+                titleLabel.Content = title;
+                descLabel.Content = description;
 
-            panel.Children.Add(template);
+                panel.Children.Add(template);
 
-            snippets[id].Id = id;
-            snippets[id].SnippetButton = template;
+                snippets[id].Id = id;
+                snippets[id].SnippetButton = template;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Failed to load snippet: " + ex.Message);
+            }
         }
 
         public void ChangeTab(int tab)
         {
-            selectedTab = tab;
-
-            SetHomeFill("pack://siteoforigin:,,,/Interface/home.png");
-            SetAddFill("pack://siteoforigin:,,,/Interface/add.png");
-            SetStarFill("pack://siteoforigin:,,,/Interface/star.png");
-            SetSettingsFill("pack://siteoforigin:,,,/Interface/settings.png");
-
-            switch (selectedTab)
+            if ((editingSnippet > -1 && AskDiscard()) || editingSnippet == -1)
             {
-                case 0:
-                    SetHomeFill("pack://siteoforigin:,,,/Interface/home_click.png");
-                    break;
-                case 1:
-                    SetAddFill("pack://siteoforigin:,,,/Interface/add_click.png");
-                    break;
-                case 2:
-                    SetStarFill("pack://siteoforigin:,,,/Interface/star_click.png");
-                    break;
-                case 3:
-                    SetSettingsFill("pack://siteoforigin:,,,/Interface/settings_click.png");
-                    break;
+                selectedTab = tab;
+
+                SetHomeFill("pack://siteoforigin:,,,/Interface/home.png");
+                SetAddFill("pack://siteoforigin:,,,/Interface/add.png");
+                SetStarFill("pack://siteoforigin:,,,/Interface/star.png");
+                SetSettingsFill("pack://siteoforigin:,,,/Interface/settings.png");
+
+                switch (selectedTab)
+                {
+                    case 0:
+                        SetHomeFill("pack://siteoforigin:,,,/Interface/home_click.png");
+                        break;
+                    case 1:
+                        SetAddFill("pack://siteoforigin:,,,/Interface/add_click.png");
+                        break;
+                    case 2:
+                        SetStarFill("pack://siteoforigin:,,,/Interface/star_click.png");
+                        break;
+                    case 3:
+                        SetSettingsFill("pack://siteoforigin:,,,/Interface/settings_click.png");
+                        break;
+                }
+
+                titleText.Text = "";
+                descriptionText.Text = "";
+                langText.Text = "";
+
+                codeText.Document.Blocks.Clear();
+
+                codeSnippetInput.Visibility = Visibility.Collapsed;
+                editingSnippet = -1;
             }
         }
 
         public void LoadSnippets()
         {
-            AddSnippet("Example", "This is an example snippet.", "js", "print(\"Hello world!\");");
-            AddSnippet("Example 2", "This is an another example snippet.", "cs", "Console.WriteLine(\"Hello world!\");");
+            if (editingSnippet == -1)
+            {
+                panel.Children.Clear();
+
+                foreach (var file in Directory.GetFiles(savesPath))
+                {
+                    List<string> lines = File.ReadAllLines(file).ToList();
+
+                    int titleIndex = lines.IndexOf("[Title]") + 1;
+                    string title = "New snippet";
+                    if (titleIndex < lines.Count)
+                        title = lines[titleIndex];
+
+                    int descriptionIndex = lines.IndexOf("[Description]") + 1;
+                    string description = "";
+                    if (descriptionIndex < lines.Count)
+                        description = lines[descriptionIndex];
+
+                    int langIndex = lines.IndexOf("[Language]") + 1;
+                    string lang = "txt";
+                    if (langIndex < lines.Count)
+                        lang = lines[langIndex];
+
+                    string code = File.ReadAllText(file).Split(new string[] { "[Code]" }, StringSplitOptions.None)[1].TrimStart().TrimEnd();
+
+                    AddSnippet(title, description, lang, code, file);
+                }
+            }
         }
-        private void AddSnippet(string title, string description, string lang, string code)
+        private void AddSnippet(string title, string description, string lang, string code, string fileName)
         {
-            Snippet snippet = new Snippet(title, description, lang, code, buttonHandler);
+            Snippet snippet = new Snippet(title, description, lang, code, buttonHandler, fileName);
             snippets.Add(snippet);
-            AddPanel(title, description, snippets.Count - 1);
+            AddPanel(title, description, lang, snippets.Count - 1);
         }
 
         private void SnippetPressed(int id)
         {
-            MessageBox.Show(snippets[id].code);
+            codeSnippetInput.Visibility = Visibility.Visible;
+
+            titleText.Text = snippets[id].title;
+            descriptionText.Text = snippets[id].description;
+            langText.Text = snippets[id].lang;
+
+            codeText.Document.Blocks.Clear();
+            codeText.Document.Blocks.Add(new Paragraph(new Run(snippets[id].code)));
+
+            editingSnippet = id;
         }
 
         private void HomeButton_Click(object sender, RoutedEventArgs e)
@@ -125,6 +195,68 @@ namespace SnipCode
 
         private void SettingsButton_Click(object sender, RoutedEventArgs e)
         {
+        }
+
+        private void refresh_Click(object sender, RoutedEventArgs e)
+        {
+            LoadSnippets();
+        }
+
+        private void Window_Activated(object sender, EventArgs e)
+        {
+            LoadSnippets();
+        }
+
+
+        //========================================
+        // Editor functions
+        //========================================
+
+        // New snippet
+        private void NewSnippet()
+        {
+
+        }
+        // Save snippet
+        private void Save()
+        {
+            if (editingSnippet > -1)
+            {
+                string file = "[Title]\n"
+                    + titleText.Text
+                    + "\n[Description]\n"
+                    + descriptionText.Text
+                    + "\n[Language]\n"
+                    + langText.Text
+                    + "\n[Code]\n";
+
+                TextRange textRange = new TextRange(codeText.Document.ContentStart, codeText.Document.ContentEnd);
+                file += textRange.Text;
+
+                File.WriteAllText(snippets[editingSnippet].fileName, file);
+
+                saved = true;
+
+                editingSnippet = -1;
+                ChangeTab(0);
+                LoadSnippets();
+            }
+        }
+        // Discard snippet
+        private bool AskDiscard()
+        {
+            saved = false;
+
+            if (saved && editingSnippet == -1) return true;
+
+            MessageBoxResult r = MessageBox.Show("Are you sure you want to discard made changes?", "Are you sure?", MessageBoxButton.YesNoCancel);
+
+            if (r == MessageBoxResult.Yes)
+            {
+                return true;
+            }
+
+            return false;
         }
 
         //========================================
@@ -245,6 +377,54 @@ namespace SnipCode
                 settings.Fill = new ImageBrush(new BitmapImage(new Uri(BaseUriHelper.GetBaseUri(this), "pack://siteoforigin:,,,/Interface/settings_click.png")));
             else
                 settings.Fill = new ImageBrush(new BitmapImage(new Uri(BaseUriHelper.GetBaseUri(this), path)));
+        }
+
+        // Set saved boolean
+        bool saved = false;
+
+        // Save snippet button click
+        private void saveButton_Click(object sender, RoutedEventArgs e)
+        {
+            Save();
+        }
+
+        // Cancel button
+        private void cancelButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (AskDiscard())
+            {
+                saved = true;
+
+                editingSnippet = -1;
+                ChangeTab(0);
+                LoadSnippets();
+            }
+        }
+
+        // Check for editor hotkeys
+        private void codeSnippetInput_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (editingSnippet > -1)
+            {
+                // Check for save hotkey
+                if (e.Key == Key.S && Keyboard.Modifiers == ModifierKeys.Control)
+                {
+                    Save();
+                }
+            }
+        }
+
+        // Check for main hotkeys
+        private void Window_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (editingSnippet == -1)
+            {
+                // Check for new snip hotkey
+                if (e.Key == Key.N && Keyboard.Modifiers == ModifierKeys.Control)
+                {
+                    NewSnippet();
+                }
+            }
         }
     }
 }
