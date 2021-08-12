@@ -119,8 +119,6 @@ namespace SnipCode
                         break;
                 }
 
-                LoadSnippets();
-
                 if (selectedTab != 1)
                 {
                     // Reset editor fields
@@ -132,7 +130,11 @@ namespace SnipCode
                     // Close the editor
                     codeSnippetInput.Visibility = Visibility.Collapsed;
                     editingSnippet = -1;
+                    editingStarred = false;
+                    editingNew = false;
                 }
+
+                LoadSnippets();
             }
             else if (editingSnippet > -1 && discard == 0)
             {
@@ -306,7 +308,7 @@ namespace SnipCode
 
                 string fileName = snippets[editingSnippet].fileName;
 
-                while (File.Exists(fileName) && editingNew)
+                while (File.Exists(fileName) && editingNew && !editingStarred)
                 {
                     fileName = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(fileName), System.IO.Path.GetFileNameWithoutExtension(fileName) + " (1)" + ".txt");
                 }
@@ -315,6 +317,7 @@ namespace SnipCode
 
                 saved = true;
 
+                editingStarred = false;
                 editingNew = false;
                 editingSnippet = -1;
 
