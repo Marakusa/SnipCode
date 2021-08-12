@@ -5,14 +5,18 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SnipCode"
         mc:Ignorable="d"
-        Title="SnipCode" Height="373" Width="757" WindowStartupLocation="CenterScreen" MinWidth="757" MinHeight="450" Icon="pack://siteoforigin:,,,/Interface/icon.png" Activated="Window_Activated" KeyDown="Window_KeyDown">
+        Title="SnipCode" Height="373" Width="757" WindowStartupLocation="CenterScreen" MinWidth="757" MinHeight="450" Icon="pack://siteoforigin:,,,/Interface/icon.png" Activated="Window_Activated" KeyDown="Window_KeyDown" Closing="Window_Closing">
 
     <Grid x:Name="Controls" Background="#FFFF006E">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="628*"/>
+            <ColumnDefinition Width="121*"/>
+        </Grid.ColumnDefinitions>
         <!--<ScrollViewer x:Name="scrollview" Margin="75,0,0,0" Background="#FFECECEC">
         </ScrollViewer>-->
         <Button x:Name="topnew" Content="New" Margin="84,8,0,0" Click="topnew_Click" BorderThickness="0" Background="White" Foreground="#FFFF006E" HorizontalAlignment="Left" Width="100" Height="37" VerticalAlignment="Top"/>
         <Button x:Name="refresh" Content="Refresh" Margin="189,8,0,0" Click="refresh_Click" BorderThickness="0" Background="White" Foreground="#FFFF006E" HorizontalAlignment="Left" Width="100" Height="37" VerticalAlignment="Top"/>
-        <ScrollViewer x:Name="scrollPanel" Margin="75,53,0,0" Background="White">
+        <ScrollViewer x:Name="scrollPanel" Margin="75,53,0,0" Background="White" Grid.ColumnSpan="2">
             <StackPanel x:Name="panel" Margin="0,0,0,30" CanVerticallyScroll="True" ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Auto">
                 <Canvas x:Name="snippet" Height="100" Width="600" Background="#FFE0E0E0" Margin="30,30,30,0" VerticalAlignment="Top">
                     <Image x:Name="icon" Height="80" Canvas.Left="10" Canvas.Top="10" Width="80" Source="pack://siteoforigin:,,,/Interface/lang-icons/js.png"/>
@@ -22,7 +26,7 @@
                 </Canvas>
             </StackPanel>
         </ScrollViewer>
-        <ScrollViewer x:Name="codeSnippetInput" Visibility="Collapsed" Margin="75,0,0,0" VerticalScrollBarVisibility="Auto" Background="White">
+        <ScrollViewer x:Name="codeSnippetInput" Visibility="Collapsed" Margin="75,0,0,0" VerticalScrollBarVisibility="Auto" Background="White" Grid.ColumnSpan="2">
             <StackPanel Margin="0,0,0,30" Background="White" KeyDown="codeSnippetInput_KeyDown">
                 <Label Margin="30,30,30,0" Content="Title" FontSize="16" />
                 <TextBox x:Name="titleText" Margin="30,0,30,0" Height="23" TextWrapping="Wrap" Text=""/>
@@ -34,8 +38,8 @@
                 <RichTextBox x:Name="codeText" Margin="30,0,30,0" FontFamily="Consolas" MinHeight="80" MinWidth="0" Block.LineHeight="2" AcceptsTab="True" >
                 </RichTextBox>
                 <Grid>
-                    <Button x:Name="saveButton" Content="Save" Margin="408,30,150,0" Height="28" Click="saveButton_Click"/>
-                    <Button x:Name="cancelButton" Content="Cancel" Margin="530,30,30,0" Height="28" Click="cancelButton_Click"/>
+                    <Button x:Name="saveButton" Content="Save" Margin="0,30,150,0" Click="saveButton_Click" HorizontalAlignment="Right" Width="116"/>
+                    <Button x:Name="cancelButton" Content="Cancel" Margin="0,30,30,0" Height="28" Click="cancelButton_Click" HorizontalAlignment="Right" Width="114"/>
                 </Grid>
             </StackPanel>
         </ScrollViewer>

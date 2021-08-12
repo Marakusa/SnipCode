@@ -59,6 +59,12 @@ namespace SnipCode
             // Initialize GUI
             InitializeComponent();
 
+            // Load window settings
+            if (Properties.Settings.Default.width > 0)
+                Width = Properties.Settings.Default.width;
+            if (Properties.Settings.Default.height > 0)
+                Height = Properties.Settings.Default.height;
+
             // Set default save path for snippets
             savesPath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "SnipCode/Saves");
 
@@ -145,6 +151,22 @@ namespace SnipCode
         private void Window_Activated(object sender, EventArgs e)
         {
             LoadSnippets();
+        }
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            Properties.Settings.Default.width = (int)Math.Round(Width);
+            Properties.Settings.Default.height = (int)Math.Round(Height);
+            Properties.Settings.Default.Save();
+
+            if (editingSnippet > -1 || editingNew)
+            {
+                int discard = AskDiscard();
+
+                if (discard == 0)
+                    Save();
+                else if (discard == 2)
+                    e.Cancel = true;
+            }
         }
 
         //========================================
