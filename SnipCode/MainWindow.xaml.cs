@@ -23,44 +23,187 @@ namespace SnipCode
     /// </summary>
     public partial class MainWindow : Window
     {
+        //========================================
+        // Variables
+
+        // A list of all the snippets currently loaded
         private List<Snippet> snippets = new List<Snippet>();
 
+        // Is editing a starred snippet
+        private bool editingStarred = false;
+        // Is the editing snippet new
+        private bool editingNew = false;
+        // Currently editing snippet (-1 == currently not editing)
         private int editingSnippet = -1;
+
+        // Currently selected tab
         private int selectedTab = 0;
+        // A snippet button template
         private string snippetTemplate;
 
+        // A snippet button function handler
         private SnippetButtonHandler buttonHandler;
 
+        // Snippets save path
         private string savesPath = @"C:\";
 
+        //========================================
+
+
+        //========================================
+        // Main window control functions
+
+        // Initialize the window
         public MainWindow()
         {
+            // Initialize GUI
             InitializeComponent();
 
+            // Set default save path for snippets
             savesPath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "SnipCode/Saves");
 
+            // Check if save path exists and if not create it
             if (!Directory.Exists(savesPath))
                 Directory.CreateDirectory(savesPath);
 
+            // Setup the snippet button handler
             buttonHandler = new SnippetButtonHandler();
             buttonHandler.ButtonPressed += ButtonHandler_ButtonPressed;
 
+            // Set the snippet button template
             snippetTemplate = XamlWriter.Save(snippet);
-
             snippet.Visibility = Visibility.Collapsed;
-
             codeSnippetInput.Visibility = Visibility.Collapsed;
 
+            // Load snippets
             LoadSnippets();
+
+            // Go to main tab
             ChangeTab(0);
         }
 
-        private void ButtonHandler_ButtonPressed(object sender, SnippetButtonPressedEventArgs e)
+        // Tab change
+        public void ChangeTab(int tab)
         {
-            SnippetPressed(e.id);
+            var discard = AskDiscard();
+
+            if ((editingSnippet > -1 && discard == 1) || editingSnippet == -1)
+            {
+                if (tab != selectedTab)
+                {
+                    scrollPanel.ScrollToTop();
+                }
+
+                selectedTab = tab;
+
+                // Update tab button graphics
+                SetHomeFill("pack://siteoforigin:,,,/Interface/home.png");
+                SetAddFill("pack://siteoforigin:,,,/Interface/add.png");
+                SetStarFill("pack://siteoforigin:,,,/Interface/star.png");
+                SetSettingsFill("pack://siteoforigin:,,,/Interface/settings.png");
+
+                switch (selectedTab)
+                {
+                    case 0:
+                        SetHomeFill("pack://siteoforigin:,,,/Interface/home_click.png");
+                        break;
+                    case 1:
+                        SetAddFill("pack://siteoforigin:,,,/Interface/add_click.png");
+                        NewSnippet();
+                        break;
+                    case 2:
+                        SetStarFill("pack://siteoforigin:,,,/Interface/star_click.png");
+                        break;
+                    case 3:
+                        SetSettingsFill("pack://siteoforigin:,,,/Interface/settings_click.png");
+                        break;
+                }
+
+                LoadSnippets();
+
+                if (selectedTab != 1)
+                {
+                    // Reset editor fields
+                    titleText.Text = "";
+                    descriptionText.Text = "";
+                    langText.Text = "";
+                    codeText.Document.Blocks.Clear();
+
+                    // Close the editor
+                    codeSnippetInput.Visibility = Visibility.Collapsed;
+                    editingSnippet = -1;
+                }
+            }
+            else if (editingSnippet > -1 && discard == 0)
+            {
+                Save();
+            }
+        }
+        // Refresh snippets every time window focused
+        private void Window_Activated(object sender, EventArgs e)
+        {
+            LoadSnippets();
         }
 
-        public void AddPanel(string title, string description, string lang, int id)
+        //========================================
+
+
+        //========================================
+        // Snippet functions
+
+        // Get snippets from the save directory
+        public void LoadSnippets()
+        {
+            // Check if a snippet is being edited
+            if (editingSnippet == -1)
+            {
+                // Clear the main tab snippets panel
+                panel.Children.Clear();
+
+                // Get snippets from the save directory
+                foreach (var file in Directory.GetFiles(savesPath))
+                {
+                    // Read all lines of snippet file
+                    List<string> lines = File.ReadAllLines(file).ToList();
+
+                    if (selectedTab != 2 || lines[0].Trim() == "Starred")
+                    {
+                        // Get title
+                        int titleIndex = lines.IndexOf("[Title]") + 1;
+                        string title = "New snippet";
+                        if (titleIndex < lines.Count)
+                            title = lines[titleIndex];
+
+                        // Get description
+                        int descriptionIndex = lines.IndexOf("[Description]") + 1;
+                        string description = "";
+                        if (descriptionIndex < lines.Count)
+                            description = lines[descriptionIndex];
+
+                        // Get code language
+                        int langIndex = lines.IndexOf("[Language]") + 1;
+                        string lang = "txt";
+                        if (langIndex < lines.Count)
+                            lang = lines[langIndex];
+
+                        // Get code
+                        string code = File.ReadAllText(file).Split(new string[] { "[Code]" }, StringSplitOptions.None)[1].TrimStart().TrimEnd();
+
+                        // Add the snippet button visuals
+                        AddSnippet(title, description, lang, code, file, lines[0].Trim() == "Starred");
+                    }
+                }
+            }
+        }
+        // Add a new snippet
+        private void AddSnippet(string title, string description, string lang, string code, string fileName, bool starred)
+        {
+            Snippet snippet = new Snippet(title, description, lang, code, buttonHandler, fileName);
+            snippets.Add(snippet);
+            AddPanel(title, description, lang, snippets.Count - 1, starred);
+        }
+        // Add a button for a snippet
+        public void AddPanel(string title, string description, string lang, int id, bool starred)
         {
             try
             {
@@ -74,7 +217,12 @@ namespace SnipCode
 
                 BitmapImage logo = new BitmapImage();
                 logo.BeginInit();
-                logo.UriSource = new Uri("pack://siteoforigin:,,,/Interface/lang-icons/" + lang + ".png");
+
+                if (File.Exists(Environment.CurrentDirectory + "/Interface/lang-icons/" + lang + ".png"))
+                    logo.UriSource = new Uri("pack://siteoforigin:,,,/Interface/lang-icons/" + lang + ".png");
+                else
+                    logo.UriSource = new Uri("pack://siteoforigin:,,,/Interface/lang-icons/file.png");
+
                 logo.EndInit();
                 icon.Source = logo;
                 titleLabel.Content = title;
@@ -83,6 +231,7 @@ namespace SnipCode
                 panel.Children.Add(template);
 
                 snippets[id].Id = id;
+                snippets[id].Starred = starred;
                 snippets[id].SnippetButton = template;
             }
             catch (Exception ex)
@@ -90,86 +239,20 @@ namespace SnipCode
                 MessageBox.Show("Failed to load snippet: " + ex.Message);
             }
         }
-
-        public void ChangeTab(int tab)
+        // Snippet pressed
+        private void ButtonHandler_ButtonPressed(object sender, SnippetButtonPressedEventArgs e)
         {
-            if ((editingSnippet > -1 && AskDiscard()) || editingSnippet == -1)
-            {
-                selectedTab = tab;
-
-                SetHomeFill("pack://siteoforigin:,,,/Interface/home.png");
-                SetAddFill("pack://siteoforigin:,,,/Interface/add.png");
-                SetStarFill("pack://siteoforigin:,,,/Interface/star.png");
-                SetSettingsFill("pack://siteoforigin:,,,/Interface/settings.png");
-
-                switch (selectedTab)
-                {
-                    case 0:
-                        SetHomeFill("pack://siteoforigin:,,,/Interface/home_click.png");
-                        break;
-                    case 1:
-                        SetAddFill("pack://siteoforigin:,,,/Interface/add_click.png");
-                        break;
-                    case 2:
-                        SetStarFill("pack://siteoforigin:,,,/Interface/star_click.png");
-                        break;
-                    case 3:
-                        SetSettingsFill("pack://siteoforigin:,,,/Interface/settings_click.png");
-                        break;
-                }
-
-                titleText.Text = "";
-                descriptionText.Text = "";
-                langText.Text = "";
-
-                codeText.Document.Blocks.Clear();
-
-                codeSnippetInput.Visibility = Visibility.Collapsed;
-                editingSnippet = -1;
-            }
+            if (e.StarredSetting)
+                SetSnippetStarred(e.Id, e.Starred);
+            else
+                SnippetPressed(e.Id, false, e.Starred);
         }
-
-        public void LoadSnippets()
+        private void SetSnippetStarred(int id, bool starred)
         {
-            if (editingSnippet == -1)
-            {
-                panel.Children.Clear();
+            int tab = selectedTab;
 
-                foreach (var file in Directory.GetFiles(savesPath))
-                {
-                    List<string> lines = File.ReadAllLines(file).ToList();
-
-                    int titleIndex = lines.IndexOf("[Title]") + 1;
-                    string title = "New snippet";
-                    if (titleIndex < lines.Count)
-                        title = lines[titleIndex];
-
-                    int descriptionIndex = lines.IndexOf("[Description]") + 1;
-                    string description = "";
-                    if (descriptionIndex < lines.Count)
-                        description = lines[descriptionIndex];
-
-                    int langIndex = lines.IndexOf("[Language]") + 1;
-                    string lang = "txt";
-                    if (langIndex < lines.Count)
-                        lang = lines[langIndex];
-
-                    string code = File.ReadAllText(file).Split(new string[] { "[Code]" }, StringSplitOptions.None)[1].TrimStart().TrimEnd();
-
-                    AddSnippet(title, description, lang, code, file);
-                }
-            }
-        }
-        private void AddSnippet(string title, string description, string lang, string code, string fileName)
-        {
-            Snippet snippet = new Snippet(title, description, lang, code, buttonHandler, fileName);
-            snippets.Add(snippet);
-            AddPanel(title, description, lang, snippets.Count - 1);
-        }
-
-        private void SnippetPressed(int id)
-        {
-            codeSnippetInput.Visibility = Visibility.Visible;
+            editingSnippet = id;
+            editingStarred = starred;
 
             titleText.Text = snippets[id].title;
             descriptionText.Text = snippets[id].description;
@@ -178,51 +261,34 @@ namespace SnipCode
             codeText.Document.Blocks.Clear();
             codeText.Document.Blocks.Add(new Paragraph(new Run(snippets[id].code)));
 
-            editingSnippet = id;
+            Save();
+
+            ChangeTab(tab);
         }
 
-        private void HomeButton_Click(object sender, RoutedEventArgs e)
-        {
-        }
-
-        private void AddButton_Click(object sender, RoutedEventArgs e)
-        {
-        }
-
-        private void starsButton_Click(object sender, RoutedEventArgs e)
-        {
-        }
-
-        private void SettingsButton_Click(object sender, RoutedEventArgs e)
-        {
-        }
-
-        private void refresh_Click(object sender, RoutedEventArgs e)
-        {
-            LoadSnippets();
-        }
-
-        private void Window_Activated(object sender, EventArgs e)
-        {
-            LoadSnippets();
-        }
+        //========================================
 
 
         //========================================
         // Editor functions
-        //========================================
 
         // New snippet
         private void NewSnippet()
         {
+            editingStarred = false;
 
+            SnippetPressed(snippets.Count, true, false);
         }
         // Save snippet
         private void Save()
         {
-            if (editingSnippet > -1)
+            if (editingSnippet > -1 && titleText.Text.Trim() != "" && codeText.Document.Blocks.Count > 0)
             {
-                string file = "[Title]\n"
+                string file = "";
+
+                if (editingStarred) file += "Starred\n";
+
+                file += "[Title]\n"
                     + titleText.Text
                     + "\n[Description]\n"
                     + descriptionText.Text
@@ -230,38 +296,62 @@ namespace SnipCode
                     + langText.Text
                     + "\n[Code]\n";
 
+                if (editingNew)
+                {
+                    snippets.Add(new Snippet("", "", "", "", null, savesPath + "/" + titleText.Text + ".txt"));
+                }
+
                 TextRange textRange = new TextRange(codeText.Document.ContentStart, codeText.Document.ContentEnd);
                 file += textRange.Text;
 
-                File.WriteAllText(snippets[editingSnippet].fileName, file);
+                string fileName = snippets[editingSnippet].fileName;
+
+                while (File.Exists(fileName) && editingNew)
+                {
+                    fileName = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(fileName), System.IO.Path.GetFileNameWithoutExtension(fileName) + " (1)" + ".txt");
+                }
+
+                File.WriteAllText(fileName, file);
 
                 saved = true;
 
+                editingNew = false;
                 editingSnippet = -1;
+
                 ChangeTab(0);
                 LoadSnippets();
             }
         }
         // Discard snippet
-        private bool AskDiscard()
+        private int AskDiscard()
         {
             saved = false;
 
-            if (saved && editingSnippet == -1) return true;
+            if (editingSnippet < 0 || codeText.Document.Blocks.Count <= 0) return 1;
 
-            MessageBoxResult r = MessageBox.Show("Are you sure you want to discard made changes?", "Are you sure?", MessageBoxButton.YesNoCancel);
+            MessageBoxResult r = MessageBox.Show("Do you want to save the made changes?", "SnipCode", MessageBoxButton.YesNoCancel);
 
             if (r == MessageBoxResult.Yes)
             {
-                return true;
+                return 0;
+            }
+            else if (r == MessageBoxResult.No)
+            {
+                return 1;
+            }
+            else if (r == MessageBoxResult.Cancel)
+            {
+                return 2;
             }
 
-            return false;
+            return 2;
         }
 
         //========================================
-        // UI appearance
+
+
         //========================================
+        // UI appearance
 
         // Home tab button highlight coloring
         private void home_MouseEnter(object sender, MouseEventArgs e)
@@ -379,19 +469,75 @@ namespace SnipCode
                 settings.Fill = new ImageBrush(new BitmapImage(new Uri(BaseUriHelper.GetBaseUri(this), path)));
         }
 
+        //========================================
+
+
+        //========================================
+        // Main tab buttons
+
+        // Snippet pressed
+        private void SnippetPressed(int id, bool isNew, bool isStarred)
+        {
+            editingNew = isNew;
+
+            if (!isNew)
+            {
+                editingStarred = isStarred;
+
+                codeSnippetInput.Visibility = Visibility.Visible;
+
+                titleText.Text = snippets[id].title;
+                descriptionText.Text = snippets[id].description;
+                langText.Text = snippets[id].lang;
+
+                codeText.Document.Blocks.Clear();
+                codeText.Document.Blocks.Add(new Paragraph(new Run(snippets[id].code)));
+
+                editingSnippet = id;
+            }
+            else
+            {
+                codeSnippetInput.Visibility = Visibility.Visible;
+
+                titleText.Text = "New Snippet";
+                descriptionText.Text = "";
+                langText.Text = "";
+
+                codeText.Document.Blocks.Clear();
+
+                editingSnippet = id;
+            }
+        }
+        // Refresh button pressed
+        private void refresh_Click(object sender, RoutedEventArgs e)
+        {
+            LoadSnippets();
+        }
+        // New snippet button pressed
+        private void topnew_Click(object sender, RoutedEventArgs e)
+        {
+            NewSnippet();
+        }
+
+        //========================================
+
+
+        //========================================
+        // Snippet edit form buttons
+
         // Set saved boolean
         bool saved = false;
-
         // Save snippet button click
         private void saveButton_Click(object sender, RoutedEventArgs e)
         {
             Save();
         }
-
         // Cancel button
         private void cancelButton_Click(object sender, RoutedEventArgs e)
         {
-            if (AskDiscard())
+            var discard = AskDiscard();
+
+            if (discard == 1)
             {
                 saved = true;
 
@@ -399,7 +545,17 @@ namespace SnipCode
                 ChangeTab(0);
                 LoadSnippets();
             }
+            else if (discard == 0)
+            {
+                Save();
+            }
         }
+
+        //========================================
+
+
+        //========================================
+        // Hotkeys
 
         // Check for editor hotkeys
         private void codeSnippetInput_KeyDown(object sender, KeyEventArgs e)
@@ -413,7 +569,6 @@ namespace SnipCode
                 }
             }
         }
-
         // Check for main hotkeys
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
@@ -424,7 +579,18 @@ namespace SnipCode
                 {
                     NewSnippet();
                 }
+
+                // Check for paste hotkey
+                if (Clipboard.GetText(TextDataFormat.Text) != null && e.Key == Key.V && Keyboard.Modifiers == ModifierKeys.Control)
+                {
+                    NewSnippet();
+
+                    string text = Clipboard.GetText(TextDataFormat.Text);
+                    codeText.AppendText(text);
+                }
             }
         }
+
+        //========================================
     }
 }

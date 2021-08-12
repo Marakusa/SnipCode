@@ -108,6 +108,7 @@
     </ApplicationDefinition>
     <Compile Include="Snippet.cs" />
     <Compile Include="SnippetButtonHandler.cs" />
+    <Compile Include="SnippetButtonPressedEventArgs.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

@@ -7,32 +7,38 @@
         mc:Ignorable="d"
         Title="SnipCode" Height="373" Width="757" WindowStartupLocation="CenterScreen" MinWidth="757" MinHeight="450" Icon="pack://siteoforigin:,,,/Interface/icon.png" Activated="Window_Activated" KeyDown="Window_KeyDown">
 
-    <Grid x:Name="Controls" Background="White">
+    <Grid x:Name="Controls" Background="#FFFF006E">
         <!--<ScrollViewer x:Name="scrollview" Margin="75,0,0,0" Background="#FFECECEC">
         </ScrollViewer>-->
-        <Button x:Name="refresh" Content="Refresh" Margin="90,16,559,371" Click="refresh_Click"/>
-        <StackPanel x:Name="panel" Margin="75,65,0,0">
-            <Canvas x:Name="snippet" Height="100" Width="600" Background="#FFE0E0E0" Margin="30,30,30,0" VerticalAlignment="Top">
-                <Image x:Name="icon" Height="80" Canvas.Left="10" Canvas.Top="10" Width="80" Source="pack://siteoforigin:,,,/Interface/lang-icons/js.png"/>
-                <Label x:Name="title" Content="Example" Canvas.Left="95" Canvas.Top="10" Width="495" FontSize="16"/>
-                <Label x:Name="description" Content="This is an example snippet." Canvas.Left="95" Canvas.Top="41" Width="495" Height="49"/>
-            </Canvas>
-        </StackPanel>
-        <StackPanel x:Name="codeSnippetInput" Margin="75,0,0,0" Background="White" Visibility="Collapsed" KeyDown="codeSnippetInput_KeyDown">
-            <Label Margin="30,30,30,0" Content="Title" FontSize="16" />
-            <TextBox x:Name="titleText" Margin="30,0,30,0" Height="23" TextWrapping="Wrap" Text=""/>
-            <Label Margin="30,0,30,0" Content="Description" FontSize="16" />
-            <TextBox x:Name="descriptionText" Margin="30,0,30,0" Height="23" TextWrapping="Wrap" Text=""/>
-            <Label Margin="30,0,30,0" Content="Code Language" FontSize="16" />
-            <TextBox x:Name="langText" Margin="30,0,30,0" Height="23" TextWrapping="Wrap" Text=""/>
-            <Label Margin="30,0,30,0" Content="Code" FontSize="16" />
-            <RichTextBox x:Name="codeText" Margin="30,0,30,0" FontFamily="Consolas" MinHeight="80" MinWidth="0" Block.LineHeight="2" AcceptsTab="True" >
-            </RichTextBox>
-            <Grid>
-                <Button x:Name="saveButton" Content="Save" Margin="408,30,150,0" Height="28" Click="saveButton_Click"/>
-                <Button x:Name="cancelButton" Content="Cancel" Margin="530,30,30,0" Height="28" Click="cancelButton_Click"/>
-            </Grid>
-        </StackPanel>
+        <Button x:Name="topnew" Content="New" Margin="84,8,0,0" Click="topnew_Click" BorderThickness="0" Background="White" Foreground="#FFFF006E" HorizontalAlignment="Left" Width="100" Height="37" VerticalAlignment="Top"/>
+        <Button x:Name="refresh" Content="Refresh" Margin="189,8,0,0" Click="refresh_Click" BorderThickness="0" Background="White" Foreground="#FFFF006E" HorizontalAlignment="Left" Width="100" Height="37" VerticalAlignment="Top"/>
+        <ScrollViewer x:Name="scrollPanel" Margin="75,53,0,0" Background="White">
+            <StackPanel x:Name="panel" Margin="0,0,0,30" CanVerticallyScroll="True" ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Auto">
+                <Canvas x:Name="snippet" Height="100" Width="600" Background="#FFE0E0E0" Margin="30,30,30,0" VerticalAlignment="Top">
+                    <Image x:Name="icon" Height="80" Canvas.Left="10" Canvas.Top="10" Width="80" Source="pack://siteoforigin:,,,/Interface/lang-icons/js.png"/>
+                    <Label x:Name="title" Content="Example" Canvas.Left="95" Canvas.Top="10" Width="444" FontSize="16"/>
+                    <Label x:Name="description" Content="This is an example snippet." Canvas.Left="95" Canvas.Top="41" Width="444" Height="49"/>
+                    <Button x:Name="star_snippet" Content="Star" Canvas.Left="544" Canvas.Top="29" Width="46" Height="46"/>
+                </Canvas>
+            </StackPanel>
+        </ScrollViewer>
+        <ScrollViewer x:Name="codeSnippetInput" Visibility="Collapsed" Margin="75,0,0,0" VerticalScrollBarVisibility="Auto" Background="White">
+            <StackPanel Margin="0,0,0,30" Background="White" KeyDown="codeSnippetInput_KeyDown">
+                <Label Margin="30,30,30,0" Content="Title" FontSize="16" />
+                <TextBox x:Name="titleText" Margin="30,0,30,0" Height="23" TextWrapping="Wrap" Text=""/>
+                <Label Margin="30,0,30,0" Content="Description" FontSize="16" />
+                <TextBox x:Name="descriptionText" Margin="30,0,30,0" Height="23" TextWrapping="Wrap" Text=""/>
+                <Label Margin="30,0,30,0" Content="Code Language" FontSize="16" />
+                <TextBox x:Name="langText" Margin="30,0,30,0" Height="23" TextWrapping="Wrap" Text=""/>
+                <Label Margin="30,0,30,0" Content="Code" FontSize="16" />
+                <RichTextBox x:Name="codeText" Margin="30,0,30,0" FontFamily="Consolas" MinHeight="80" MinWidth="0" Block.LineHeight="2" AcceptsTab="True" >
+                </RichTextBox>
+                <Grid>
+                    <Button x:Name="saveButton" Content="Save" Margin="408,30,150,0" Height="28" Click="saveButton_Click"/>
+                    <Button x:Name="cancelButton" Content="Cancel" Margin="530,30,30,0" Height="28" Click="cancelButton_Click"/>
+                </Grid>
+            </StackPanel>
+        </ScrollViewer>
         <Rectangle Fill="White" HorizontalAlignment="Left" Stroke="White" Width="75" RenderTransformOrigin="0.5,0.5" StrokeThickness="0">
             <Rectangle.RenderTransform>
                 <TransformGroup>
@@ -69,6 +75,7 @@
             </Rectangle.Fill>
         </Rectangle>
         <Rectangle HorizontalAlignment="Left" Margin="74,0,0,0" Width="3" Fill="#FFFF006E"/>
+        <Label Content="(Ctrl+V) Paste a new snippet" HorizontalAlignment="Left" Margin="298,14,0,0" VerticalAlignment="Top" Foreground="White"/>
 
         <!--<Grid.ColumnDefinitions>
             <ColumnDefinition Width="201*"/>
