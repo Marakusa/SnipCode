@@ -59,6 +59,12 @@ namespace SnipCode
             // Initialize GUI
             InitializeComponent();
 
+            // Load window settings
+            if (Properties.Settings.Default.width > 0)
+                Width = Properties.Settings.Default.width;
+            if (Properties.Settings.Default.height > 0)
+                Height = Properties.Settings.Default.height;
+
             // Set default save path for snippets
             savesPath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "SnipCode/Saves");
 
@@ -119,8 +125,6 @@ namespace SnipCode
                         break;
                 }
 
-                LoadSnippets();
-
                 if (selectedTab != 1)
                 {
                     // Reset editor fields
@@ -132,7 +136,11 @@ namespace SnipCode
                     // Close the editor
                     codeSnippetInput.Visibility = Visibility.Collapsed;
                     editingSnippet = -1;
+                    editingStarred = false;
+                    editingNew = false;
                 }
+
+                LoadSnippets();
             }
             else if (editingSnippet > -1 && discard == 0)
             {
@@ -143,6 +151,22 @@ namespace SnipCode
         private void Window_Activated(object sender, EventArgs e)
         {
             LoadSnippets();
+        }
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            Properties.Settings.Default.width = (int)Math.Round(Width);
+            Properties.Settings.Default.height = (int)Math.Round(Height);
+            Properties.Settings.Default.Save();
+
+            if (editingSnippet > -1 || editingNew)
+            {
+                int discard = AskDiscard();
+
+                if (discard == 0)
+                    Save();
+                else if (discard == 2)
+                    e.Cancel = true;
+            }
         }
 
         //========================================
@@ -306,7 +330,7 @@ namespace SnipCode
 
                 string fileName = snippets[editingSnippet].fileName;
 
-                while (File.Exists(fileName) && editingNew)
+                while (File.Exists(fileName) && editingNew && !editingStarred)
                 {
                     fileName = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(fileName), System.IO.Path.GetFileNameWithoutExtension(fileName) + " (1)" + ".txt");
                 }
@@ -315,6 +339,7 @@ namespace SnipCode
 
                 saved = true;
 
+                editingStarred = false;
                 editingNew = false;
                 editingSnippet = -1;
 
