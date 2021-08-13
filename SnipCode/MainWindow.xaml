@@ -23,7 +23,7 @@
             </StackPanel>
         </ScrollViewer>
         <ScrollViewer x:Name="codeSnippetInput" Visibility="Collapsed" Margin="75,0,0,0" VerticalScrollBarVisibility="Auto" Background="White">
-            <StackPanel Margin="0,0,0,30" Background="White" KeyDown="codeSnippetInput_KeyDown">
+            <StackPanel Margin="0,0,0,30" Background="White">
                 <Label Margin="30,30,30,0" Content="Title" FontSize="16" />
                 <TextBox x:Name="titleText" Margin="30,0,30,0" Height="23" TextWrapping="Wrap" Text=""/>
                 <Label Margin="30,0,30,0" Content="Description" FontSize="16" />

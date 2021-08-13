@@ -557,22 +557,11 @@ namespace SnipCode
         //========================================
         // Hotkeys
 
-        // Check for editor hotkeys
-        private void codeSnippetInput_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (editingSnippet > -1)
-            {
-                // Check for save hotkey
-                if (e.Key == Key.S && Keyboard.Modifiers == ModifierKeys.Control)
-                {
-                    Save();
-                }
-            }
-        }
-        // Check for main hotkeys
+        // Check for hotkeys
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
-            if (editingSnippet == -1)
+            // Main hotkeys
+            if (editingSnippet < 0)
             {
                 // Check for new snip hotkey
                 if (e.Key == Key.N && Keyboard.Modifiers == ModifierKeys.Control)
@@ -587,6 +576,26 @@ namespace SnipCode
 
                     string text = Clipboard.GetText(TextDataFormat.Text);
                     codeText.AppendText(text);
+                }
+            }
+            // Editor hotkeys
+            else
+            {
+                // Check for save hotkey
+                if (e.Key == Key.S && Keyboard.Modifiers == ModifierKeys.Control)
+                {
+                    Save();
+                }
+                // Close editor without saving
+                if (e.Key == Key.Q && Keyboard.Modifiers == ModifierKeys.Control)
+                {
+                    MessageBoxResult result = MessageBox.Show("Do you want to discard the changes\nand close the editor?", "Are you sure?", MessageBoxButton.YesNo);
+
+                    if (result == MessageBoxResult.Yes)
+                    {
+                        editingSnippet = -1;
+                        ChangeTab(0);
+                    }
                 }
             }
         }
