@@ -611,8 +611,9 @@ namespace SnipCode
                 {
                     Save();
                 }
+
                 // Close editor without saving
-                if (e.Key == Key.Q && Keyboard.Modifiers == ModifierKeys.Control)
+                if (e.Key == Key.W && Keyboard.Modifiers == ModifierKeys.Control)
                 {
                     MessageBoxResult result = MessageBox.Show("Do you want to discard the changes\nand close the editor?", "Are you sure?", MessageBoxButton.YesNo);
 
