@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SnipCode.Database;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -86,6 +87,8 @@ namespace SnipCode
 
             // Go to main tab
             ChangeTab(0);
+
+            LogInFirebase logIn = new LogInFirebase("ZS6S9QXm9nDfoK8eIxnEos5XrxB8SsESbq0TkZyl");
         }
 
         // Tab change
@@ -601,6 +604,12 @@ namespace SnipCode
 
                     string text = Clipboard.GetText(TextDataFormat.Text);
                     codeText.AppendText(text);
+                }
+
+                // Refresh snippets
+                if (e.Key == Key.R && Keyboard.Modifiers == ModifierKeys.Control)
+                {
+                    LoadSnippets();
                 }
             }
             // Editor hotkeys
