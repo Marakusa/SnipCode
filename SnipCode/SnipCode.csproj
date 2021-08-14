@@ -129,7 +129,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Firebase\LogInFirebase.cs" />
     <Compile Include="Snippet.cs" />
     <Compile Include="SnippetButtonHandler.cs" />
     <Compile Include="SnippetButtonPressedEventArgs.cs" />

@@ -1,5 +1,4 @@
-﻿using SnipCode.Database;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -87,8 +86,6 @@ namespace SnipCode
 
             // Go to main tab
             ChangeTab(0);
-
-            LogInFirebase logIn = new LogInFirebase("ZS6S9QXm9nDfoK8eIxnEos5XrxB8SsESbq0TkZyl");
         }
 
         // Tab change
